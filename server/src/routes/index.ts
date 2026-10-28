@@ -1,4 +1,7 @@
+
 import { Router } from 'express';
+import adminRoutes from './admin.routes.js';
+import { siteController } from '../controllers/site.controller.js';
 import { authController } from '../controllers/auth.controller.js';
 import { catalogController } from '../controllers/catalog.controller.js';
 import { cartController } from '../controllers/cart.controller.js';
@@ -27,6 +30,15 @@ router.get('/products/facets', catalogController.facets);
 router.get('/products/:slug', validate({ params: v.slugParam }), catalogController.detail);
 router.get('/categories', catalogController.categories);
 
+
+// ---- public order tracking (order number + email)
+router.post('/track-order', rateLimit({ prefix: 'track', windowSec: 300, max: 10 }), validate({ body: v.trackOrderSchema }), orderController.track);
+
+
+router.get('/site/home', siteController.home);
+router.post('/track-order', rateLimit({ prefix: 'track', windowSec: 300, max: 10 }), validate({ body: v.trackOrderSchema }), orderController.track);
+router.use('/admin', adminRoutes);
+
 // ---- authenticated
 const secured = Router();
 secured.use(requireAuth);
@@ -51,7 +63,8 @@ secured.post('/me/addresses', validate({ body: v.addressSchema }), userControlle
 secured.delete('/me/addresses/:id', validate({ params: v.idParam }), userController.deleteAddress);
 router.use(secured);
 
-// ---- public order tracking (order number + email)
-router.post('/track-order', rateLimit({ prefix: 'track', windowSec: 300, max: 10 }), validate({ body: v.trackOrderSchema }), orderController.track);
+
+
+
 
 export default router;

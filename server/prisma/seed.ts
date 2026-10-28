@@ -34,6 +34,18 @@ async function main() {
   await prisma.orderEvent.deleteMany(); await prisma.orderItem.deleteMany(); await prisma.order.deleteMany();
   await prisma.cartItem.deleteMany(); await prisma.cart.deleteMany(); await prisma.wishlistItem.deleteMany();
   await prisma.variant.deleteMany(); await prisma.product.deleteMany(); await prisma.category.deleteMany();
+  await prisma.banner.createMany({ data: [
+    { section: 'HERO', imageUrl: '/assets/figma/hero-banner-01.png', alt: 'Desi, your way — new season collection', sortOrder: 0 },
+    { section: 'EDITORIAL', imageUrl: '/assets/figma/banner-editorial.png', alt: 'Festive edit', linkUrl: '/shop?sale=1' },
+    ...['Ivory', 'Green', 'Pink', 'Black'].map((c, i) => ({
+      section: 'COLOUR' as const, imageUrl: `/assets/figma/color-${i + 1}.png`, alt: `${c} collection`, label: c, linkUrl: `/shop?colours=${c}`, sortOrder: i,
+    })),
+  ] });
+
+  await prisma.user.upsert({
+    where: { email: 'admin@nepbelle.test' }, update: { role: 'ADMIN' },
+    create: { email: 'admin@nepbelle.test', passwordHash: await bcrypt.hash('Admin12345!', 12), firstName: 'Admin', lastName: 'User', role: 'ADMIN' },
+  });
 
   const cats = new Map<string, string>();
   for (const [i, c] of categories.entries()) cats.set(c.slug, (await prisma.category.create({ data: { ...c, sortOrder: i } })).id);

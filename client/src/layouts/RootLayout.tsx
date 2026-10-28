@@ -8,6 +8,7 @@ import { QuickView } from '@/features/catalog/components/QuickView';
 
 export default function RootLayout() {
   const { pathname } = useLocation();
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header variant={pathname === '/' ? 'overlay' : 'solid'} />

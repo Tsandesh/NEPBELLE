@@ -1,12 +1,13 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom';
 import RootLayout from '@/layouts/RootLayout';
 import AuthLayout from '@/layouts/AuthLayout';
 import CheckoutLayout from '@/layouts/CheckoutLayout';
 import AccountLayout from '@/layouts/AccountLayout';
 import { ErrorFallback } from '@/components/common/ErrorFallback';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GuestRoute, ProtectedRoute } from './guards';
+import { AdminRoute, GuestRoute, ProtectedRoute } from './guards';
+import AdminLayout from '@/layouts/AdminLayout';
 
 const page = (loader: () => Promise<{ default: React.ComponentType }>) => {
   const C = lazy(loader);
@@ -57,6 +58,20 @@ const routes: RouteObject[] = [
       { path: 'login', element: page(() => import('@/pages/LoginPage')) },
       { path: 'register', element: page(() => import('@/pages/RegisterPage')) },
     ] }],
+  },
+    {
+    element: <AdminRoute />, errorElement: <ErrorFallback />,
+    children: [{
+      path: 'admin', element: <AdminLayout />,
+      children: [
+        { index: true, element: <Navigate to="products" replace /> },
+        { path: 'products', element: page(() => import('@/pages/admin/AdminProductsPage')) },
+        { path: 'products/new', element: page(() => import('@/pages/admin/AdminProductFormPage')) },
+        { path: 'products/:id', element: page(() => import('@/pages/admin/AdminProductFormPage')) },
+        { path: 'categories', element: page(() => import('@/pages/admin/AdminCategoriesPage')) },
+        { path: 'homepage', element: page(() => import('@/pages/admin/AdminHomepagePage')) },
+      ],
+    }],
   },
   { path: '*', element: <RootLayout />, children: [{ path: '*', element: page(() => import('@/pages/NotFoundPage')) }] },
 ];

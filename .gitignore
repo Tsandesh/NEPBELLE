@@ -3,3 +3,5 @@ dist
 .env
 *.log
 client/public/assets/figma
+
+server/uploads

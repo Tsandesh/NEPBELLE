@@ -3,7 +3,7 @@ const A = '/assets/figma';
 export const images = {
   // hero: [`${A}/hero-banner-01.jpg`, `${A}/hero-banner-02.jpg`],
   hero: [1, 2].map((n) => ({ src: `${A}/hero-banner-0${n}.jpg`, alt: `Hero banner ${n}` })),
-  editorial: `${A}/banner-editorial.png`,
+  editorial: `${A}/editorial.jpg`,
   categories: [1, 2, 3, 4, 5, 6].map((n) => `${A}/category-${n}.png`),
   colours: [1, 2, 3, 4].map((n) => `${A}/color-${n}.png`),
   icons: {

@@ -17,3 +17,11 @@ export const GuestRoute = () => {
   if (!bootstrapped) return <Booting />;
   return isAuthenticated ? <Navigate to={(loc.state as any)?.from ?? '/account'} replace /> : <Outlet />;
 };
+
+export const AdminRoute = () => {
+  const { user, isAuthenticated, bootstrapped } = useAuth();
+  const loc = useLocation();
+  if (!bootstrapped) return <Booting />;
+  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
+  return user?.role === 'ADMIN' ? <Outlet /> : <Navigate to="/" replace />;
+};
