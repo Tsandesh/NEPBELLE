@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Sansation is not on Google Fonts. Drop Sansation-Regular.woff2 into /public/fonts (see README). */
+@font-face {
+  font-family: 'Sansation';
+  src: url('/fonts/Sansation-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* ── Figma variables (UI States Board 9:30269 + Home 7:946) ── */
+    --brand: #000080;            /* primary buttons, selected size, checked checkbox */
+    --brand-hover: #0D30E6;      /* hover; also footer + nav active bg */
+    --brand-pressed: #0A24C4;
+    --brand-tint: #fbf0f0;       /* secondary hover, checkbox hover */
+    --brand-tint-strong: #f5dede;/* secondary pressed */
+    --accent: #f3bf43;           /* announcement bar / brand accent strip */
+    --canvas: #faf7f5;           /* board / page tint */
+    --section-tint: #f9f5f4;     /* shop-by-colour section */
+    --surface: #ffffff;
+    --ink: #222222;
+    --muted: #666666;
+    --subtle: #999999;
+    --placeholder: #a3a2a2;
+    --line: #dddddd;
+    --line-soft: #e5e5e5;
+    --disabled: #eeeeee;
+    --field-disabled: #f4f4f4;
+    --thumb: #f4f4f4;
+
+    /* shadcn semantic aliases */
+    --background: var(--surface);
+    --foreground: var(--ink);
+    --primary: var(--brand);
+    --primary-foreground: #ffffff;
+    --secondary: var(--brand-tint);
+    --secondary-foreground: var(--brand);
+    --muted-bg: var(--field-disabled);
+    --destructive: var(--brand);
+    --border: var(--line);
+    --input: var(--line);
+    --ring: var(--brand);
+    --radius: 0px; /* design uses square corners on controls */
+  }
+
+  * { @apply border-border; }
+  html { scroll-behavior: auto; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Sansation', 'Trebuchet MS', system-ui, sans-serif;
+    font-size: 14px;
+  }
+  h1, h2, h3, h4 { font-family: 'Abhaya Libre', Georgia, serif; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+}
+
+@layer utilities {
+  .container-nb { @apply mx-auto w-full max-w-[1337px] px-4 md:px-11; }
+  .section-gradient { background: linear-gradient(to bottom, rgba(171, 52, 48, 0.05), rgba(171, 52, 48, 0)); }
+}

@@ -1,0 +1,17 @@
+export interface Colour { name: string; hex: string }
+export interface Variant { id: string; size: string; colourName: string; colourHex: string; stock: number }
+export interface Product {
+  id: string; slug: string; name: string; description: string; fabric: string | null;
+  priceCents: number; compareAtCents: number | null; currency: string;
+  images: string[]; badge: string | null; onSale: boolean;
+  category: { slug: string; name: string };
+  stockLabel: 'Only Few Left' | 'Sold Out' | null;
+  colours: Colour[]; sizes: { size: string; inStock: boolean }[]; variants: Variant[];
+}
+export interface Category { id: string; slug: string; name: string; imageUrl: string | null }
+export interface Facets { sizes: string[]; colours: Colour[]; price: { min: number; max: number } }
+export interface ProductFilters {
+  category?: string; collection?: 'most-loved' | 'recommended'; q?: string;
+  sale?: boolean; sizes?: string[]; colours?: string[]; minPrice?: number; maxPrice?: number;
+  sort?: 'newest' | 'price-asc' | 'price-desc'; page?: number; limit?: number;
+}

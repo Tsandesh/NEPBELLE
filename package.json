@@ -1,0 +1,15 @@
+{
+  "name": "nepbelle",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w server && npm run build -w client",
+    "db:up": "docker compose up -d postgres redis",
+    "db:migrate": "npm run prisma:migrate -w server",
+    "db:seed": "npm run prisma:seed -w server",
+    "assets": "bash scripts/fetch-figma-assets.sh"
+  },
+  "devDependencies": { "concurrently": "^9.0.0" }
+}
