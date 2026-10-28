@@ -1,6 +1,5 @@
 # Nepbelle — e-commerce (React + Express + PostgreSQL + Redis)
 
-Figma source: `cMTxFMvLhwZmpr0KjFkfzN` (file name "BELLEBLUE", UI copy says **NEPBELLE**).
 
 ## Run it
 ```bash
