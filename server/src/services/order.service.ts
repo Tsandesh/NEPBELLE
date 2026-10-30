@@ -47,7 +47,7 @@ export const orderService = {
           shippingAddress: input.shippingAddress, paymentMethod: input.paymentMethod, paymentStatus: payment.status,
           items: { create: cart.items.map((i) => ({
             productName: i.variant.product.name, productSlug: i.variant.product.slug, productImage: i.variant.product.images[0] ?? '',
-            size: i.variant.size, colourName: i.variant.colourName, unitPriceCents: i.variant.product.priceCents, quantity: i.quantity,
+            size: i.variant.size, colourName: i.variant.colour?.name ?? '', unitPriceCents: i.variant.product.priceCents, quantity: i.quantity,
           })) },
           events: { create: { status: 'PLACED', note: 'Order placed' } },
         },

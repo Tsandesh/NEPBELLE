@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 
-const LINKS = [{ to: '/admin/products', label: 'Products' }, { to: '/admin/categories', label: 'Categories' }, { to: '/admin/homepage', label: 'Homepage images' }];
+const LINKS = [{ to: '/admin/products', label: 'Products' }, { to: '/admin/categories', label: 'Categories' }, { to: '/admin/homepage', label: 'Homepage images' }, { to: '/admin/colours', label: 'Colours' }];
 
 export default function AdminLayout() {
   return (

@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../services/adminService';
-import type { BannerInput, CategoryInput, ProductInput } from '../types';
+import type { BannerInput, CategoryInput, ProductInput,ColourInput } from '../types';
 
 // After any admin write, refetch everything the storefront or admin screens might show
 const useRefresh = () => {
@@ -40,3 +40,13 @@ export const useSaveBanner = () => {
   });
 };
 export const useDeleteBanner = () => { const refresh = useRefresh(); return useMutation({ mutationFn: adminService.banners.remove, onSuccess: refresh }); };
+
+export const useAdminColours = () => useQuery({ queryKey: ['admin', 'colours'], queryFn: adminService.colours.list });
+export const useSaveColour = () => {
+  const refresh = useRefresh();
+  return useMutation({
+    mutationFn: ({ id, body }: { id?: string; body: ColourInput }) => (id ? adminService.colours.update(id, body) : adminService.colours.create(body)),
+    onSuccess: refresh,
+  });
+};
+export const useDeleteColour = () => { const refresh = useRefresh(); return useMutation({ mutationFn: adminService.colours.remove, onSuccess: refresh }); };

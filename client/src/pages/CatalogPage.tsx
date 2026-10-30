@@ -41,7 +41,7 @@ export default function CatalogPage() {
           <fieldset><legend className="mb-3 font-serif text-base font-extrabold">Size</legend>
             <div className="space-y-2.5">{facets?.sizes.map((s) => <div key={s} className="flex items-center gap-2.5"><Checkbox id={`s-${s}`} checked={list('sizes').includes(s)} onCheckedChange={() => toggle('sizes', s)} /><Label htmlFor={`s-${s}`} className="font-sans font-normal text-muted-foreground">{s}</Label></div>)}</div></fieldset>
           <fieldset><legend className="mb-3 font-serif text-base font-extrabold">Colour</legend>
-            <div className="flex flex-wrap gap-2">{facets?.colours.map((c) => <ColourSwatch key={c.name} {...c} selected={list('colours').includes(c.name)} onSelect={() => toggle('colours', c.name)} />)}</div></fieldset>
+            <div className="flex flex-wrap gap-2">{facets?.colours.map((c) => <ColourSwatch key={c.id} name={c.name} hex={c.hex} selected={list('colours').includes(c.slug)} onSelect={() => toggle('colours', c.slug)} />)}</div></fieldset>
           {(sp.get('sizes') || sp.get('colours')) && <Button variant="secondary" size="sm" onClick={() => setSp(new URLSearchParams(filters.q ? { q: filters.q } : {}))}>Clear filters</Button>}
         </aside>
 

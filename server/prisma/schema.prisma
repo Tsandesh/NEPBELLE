@@ -85,19 +85,30 @@ model Product {
   @@index([createdAt])
 }
 
-model Variant {
-  id         String     @id @default(cuid())
-  productId  String
-  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku        String     @unique
-  size       String
-  colourName String
-  colourHex  String
-  stock      Int        @default(0)
-  cartItems  CartItem[]
-
-  @@unique([productId, size, colourName])
+model Colour {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String    @unique
+  hex       String
+  sortOrder Int       @default(0)
+  variants  Variant[]
 }
+
+model Variant {
+  id        String     @id @default(cuid())
+  productId String
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku       String     @unique
+  size      String
+  colourId  String
+  colour    Colour     @relation(fields: [colourId], references: [id], onDelete: Restrict)
+  stock     Int        @default(0)
+  cartItems CartItem[]
+
+  @@unique([productId, size, colourId])
+  @@index([colourId])
+}
+
 
 model Cart {
   id     String     @id @default(cuid())

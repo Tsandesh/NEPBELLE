@@ -1,11 +1,13 @@
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../config/db.js';
 import { productInclude } from './product.repository.js';
-import type { BannerInput, CategoryInput, ProductInput } from '../validators/admin.js';
+import type { BannerInput, CategoryInput, ProductInput,ColourInput } from '../validators/admin.js';
 
-const skuOf = (slug: string, v: { colourName: string; size: string }) =>
-  `${slug}-${v.colourName}-${v.size}`.toUpperCase().replace(/[^A-Z0-9]+/g, '-');
-const vKey = (v: { colourName: string; size: string }) => `${v.colourName}|${v.size}`;
+const skuOf = (slug: string, colourSlug: string, size: string) =>
+  `${slug}-${colourSlug}-${size}`.toUpperCase().replace(/[^A-Z0-9]+/g, '-');
+const vKey = (v: { colourId: string; size: string }) => `${v.colourId}|${v.size}`;
+type SlugMap = Map<string, string>; // colourId -> colour slug (for SKUs)
+
 const fields = (i: ProductInput) => ({
   name: i.name, description: i.description, fabric: i.fabric ?? null, priceCents: i.priceCents,
   compareAtCents: i.compareAtCents ?? null, images: i.images, badge: i.badge ?? null, onSale: i.onSale,
@@ -25,13 +27,15 @@ export const adminRepository = {
     ]);
     return { items, total };
   },
-  createProduct: (slug: string, i: ProductInput) =>
+    createProduct: (slug: string, i: ProductInput, cs: SlugMap) =>
     prisma.product.create({
-      data: { ...fields(i), slug, variants: { create: i.variants.map((v) => ({ ...v, sku: skuOf(slug, v) })) } },
+      data: {
+        ...fields(i), slug,
+        variants: { create: i.variants.map((v) => ({ colourId: v.colourId, size: v.size, stock: v.stock, sku: skuOf(slug, cs.get(v.colourId)!, v.size) })) },
+      },
       include: productInclude,
     }),
-  /** Upsert variants so unchanged ones (and their cart items) survive; delete only those removed. */
-  updateProduct: (id: string, slug: string, i: ProductInput) =>
+  updateProduct: (id: string, slug: string, i: ProductInput, cs: SlugMap) =>
     prisma.$transaction(async (tx) => {
       const existing = await tx.variant.findMany({ where: { productId: id } });
       const keep = new Set(i.variants.map(vKey));
@@ -39,9 +43,9 @@ export const adminRepository = {
       if (removed.length) await tx.variant.deleteMany({ where: { id: { in: removed } } });
       for (const v of i.variants) {
         await tx.variant.upsert({
-          where: { productId_size_colourName: { productId: id, size: v.size, colourName: v.colourName } },
-          create: { productId: id, ...v, sku: skuOf(slug, v) },
-          update: { colourHex: v.colourHex, stock: v.stock },
+          where: { productId_size_colourId: { productId: id, size: v.size, colourId: v.colourId } },
+          create: { productId: id, colourId: v.colourId, size: v.size, stock: v.stock, sku: skuOf(slug, cs.get(v.colourId)!, v.size) },
+          update: { stock: v.stock },
         });
       }
       return tx.product.update({ where: { id }, data: { ...fields(i), slug }, include: productInclude });
@@ -64,4 +68,18 @@ export const adminRepository = {
   createBanner: (i: BannerInput) => prisma.banner.create({ data: { ...i, label: i.label ?? null, linkUrl: i.linkUrl ?? null } }),
   updateBanner: (id: string, i: BannerInput) => prisma.banner.update({ where: { id }, data: { ...i, label: i.label ?? null, linkUrl: i.linkUrl ?? null } }),
   deleteBanner: (id: string) => prisma.banner.delete({ where: { id } }),
+
+
+    // ---- colours
+  coloursByIds: (ids: string[]) => prisma.colour.findMany({ where: { id: { in: ids } }, select: { id: true, slug: true } }),
+  findColour: (id: string) => prisma.colour.findUnique({ where: { id }, include: { _count: { select: { variants: true } } } }),
+  colourSlugTaken: (slug: string, exceptId?: string) =>
+    prisma.colour.findFirst({ where: { slug, ...(exceptId ? { NOT: { id: exceptId } } : {}) }, select: { id: true } }),
+  colourNameTaken: (name: string, exceptId?: string) =>
+    prisma.colour.findFirst({ where: { name: { equals: name, mode: 'insensitive' }, ...(exceptId ? { NOT: { id: exceptId } } : {}) }, select: { id: true } }),
+  listColours: () =>
+    prisma.colour.findMany({ orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }], include: { _count: { select: { variants: true } } } }),
+  createColour: (slug: string, i: ColourInput) => prisma.colour.create({ data: { slug, name: i.name, hex: i.hex, sortOrder: i.sortOrder } }),
+  updateColour: (id: string, slug: string, i: ColourInput) => prisma.colour.update({ where: { id }, data: { slug, name: i.name, hex: i.hex, sortOrder: i.sortOrder } }),
+  deleteColour: (id: string) => prisma.colour.delete({ where: { id } }),
 };

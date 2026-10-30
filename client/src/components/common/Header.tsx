@@ -41,10 +41,12 @@ export const Header = ({ variant = 'solid' }: Props) => {
       </div>
 
       <div className="flex h-[68px] items-center justify-between gap-4 px-4 md:px-11">
-        <Logo className={cn(
-          'transition-colors duration-200',
-          condition ? 'text-white group-hover:text-primary' : 'text-primary'
-        )} />
+        <Logo 
+        // className={cn(
+        //   'transition-colors duration-200',
+        //   condition ? 'text-white group-hover:text-primary' : 'text-primary'
+        // )} 
+        />
         
         <div className="hidden items-center gap-1 rounded-[3px] bg-brand-hover/[0.13] px-2 py-[5px] font-serif text-sm font-extrabold lg:flex">
           <span>Ship to</span><span>Australia (A$)</span>

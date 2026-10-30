@@ -7,7 +7,7 @@ type CartWithItems = Awaited<ReturnType<typeof cartRepository.getOrCreate>>;
 export const toCartDTO = (cart: CartWithItems) => {
   const items = cart.items.map((i) => ({
     id: i.id, variantId: i.variantId, quantity: i.quantity, size: i.variant.size,
-    colour: { name: i.variant.colourName, hex: i.variant.colourHex },
+    colour: { name: i.variant.colour.name, hex: i.variant.colour.hex },
     stock: i.variant.stock,
     product: { id: i.variant.product.id, slug: i.variant.product.slug, name: i.variant.product.name, image: i.variant.product.images[0] ?? null },
     unitPriceCents: i.variant.product.priceCents,

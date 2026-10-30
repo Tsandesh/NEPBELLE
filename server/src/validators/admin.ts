@@ -5,11 +5,18 @@ const safeUrl = z.string().trim().min(1).max(500)
   .refine((u) => (u.startsWith('/') && !u.startsWith('//')) || u.startsWith('https://'), 'Use an uploaded image, a site path, or an https URL.');
 
 const variant = z.object({
+  colourId: z.string().min(1),
   size: z.string().trim().min(1).max(10),
-  colourName: z.string().trim().min(1).max(40),
-  colourHex: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Use a hex colour like #b51f2a'),
   stock: z.number().int().min(0).max(100000),
 });
+
+export const colourInputSchema = z.object({
+  name: z.string().trim().min(1).max(40),
+  slug: z.string().trim().max(40).optional(),
+  hex: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Use a hex colour like #b51f2a'),
+  sortOrder: z.number().int().min(0).max(1000).default(0),
+});
+export type ColourInput = z.infer<typeof colourInputSchema>;
 
 export const productInputSchema = z.object({
   name: z.string().trim().min(2).max(160),
@@ -29,9 +36,9 @@ export const productInputSchema = z.object({
     ctx.addIssue({ code: 'custom', path: ['compareAtCents'], message: 'Compare-at price must be higher than the price.' });
   const seen = new Set<string>();
   for (const x of v.variants) {
-    const k = `${x.colourName.toLowerCase()}|${x.size}`;
-    if (seen.has(k)) ctx.addIssue({ code: 'custom', path: ['variants'], message: `Duplicate variant: ${x.colourName} / ${x.size}` });
-    seen.add(k);
+// in superRefine
+    const k = `${x.colourId}|${x.size}`;
+    if (seen.has(k)) ctx.addIssue({ code: 'custom', path: ['variants'], message: 'Duplicate colour/size combination.' });
   }
 });
 export type ProductInput = z.infer<typeof productInputSchema>;

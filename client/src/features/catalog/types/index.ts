@@ -1,5 +1,5 @@
-export interface Colour { name: string; hex: string }
-export interface Variant { id: string; size: string; colourName: string; colourHex: string; stock: number }
+export interface Colour { id: string; slug: string; name: string; hex: string }
+export interface Variant { id: string; size: string; stock: number; colourId: string; colourName: string; colourHex: string }
 export interface Product {
   id: string; slug: string; name: string; description: string; fabric: string | null;
   priceCents: number; compareAtCents: number | null; currency: string;

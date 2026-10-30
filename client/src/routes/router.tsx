@@ -70,6 +70,7 @@ const routes: RouteObject[] = [
         { path: 'products/:id', element: page(() => import('@/pages/admin/AdminProductFormPage')) },
         { path: 'categories', element: page(() => import('@/pages/admin/AdminCategoriesPage')) },
         { path: 'homepage', element: page(() => import('@/pages/admin/AdminHomepagePage')) },
+        { path: 'colours', element: page(() => import('@/pages/admin/AdminColoursPage')) },
       ],
     }],
   },

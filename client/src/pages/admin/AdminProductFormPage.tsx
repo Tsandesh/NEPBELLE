@@ -7,12 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getErrorMessage, getFieldErrors } from '@/services/api';
 import { ImageUploader } from '@/features/admin/components/ImageUploader';
-import { useAdminCategories, useAdminProduct, useSaveProduct } from '@/features/admin/hooks/useAdmin';
+import { useAdminCategories, useAdminColours, useAdminProduct, useSaveProduct } from '@/features/admin/hooks/useAdmin';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const COLLECTIONS = [['most-loved', 'Most Loved'], ['recommended', 'Recommended for you']] as const;
-interface ColourRow { name: string; hex: string; stock: Record<string, number> }
-const blankColour = (): ColourRow => ({ name: '', hex: '#b51f2a', stock: Object.fromEntries(SIZES.map((s) => [s, 0])) });
+interface Row { colourId: string; stock: Record<string, number> }
+const zeroStock = () => Object.fromEntries(SIZES.map((s) => [s, 0]));
+const blankRow = (): Row => ({ colourId: '', stock: zeroStock() });
 const field = 'w-full border border-line bg-white px-3 text-sm outline-none focus:border-2 focus:border-brand';
 
 export default function AdminProductFormPage() {
@@ -20,10 +21,11 @@ export default function AdminProductFormPage() {
   const nav = useNavigate();
   const { data: product, isLoading } = useAdminProduct(id);
   const { data: categories } = useAdminCategories();
+  const { data: colours } = useAdminColours();
   const save = useSaveProduct();
 
   const [f, setF] = useState({ name: '', slug: '', description: '', fabric: '', price: '', compareAt: '', badge: '', onSale: false, categoryId: '', collections: [] as string[], images: [] as string[] });
-  const [colours, setColours] = useState<ColourRow[]>([blankColour()]);
+  const [rows, setRows] = useState<Row[]>([blankRow()]);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [formError, setFormError] = useState<string>();
 
@@ -34,16 +36,16 @@ export default function AdminProductFormPage() {
       price: (product.priceCents / 100).toFixed(2), compareAt: product.compareAtCents ? (product.compareAtCents / 100).toFixed(2) : '',
       badge: product.badge ?? '', onSale: product.onSale, categoryId: product.categoryId, collections: product.collections, images: product.images,
     });
-    const rows = new Map<string, ColourRow>();
+    const map = new Map<string, Row>();
     product.variants.forEach((v) => {
-      const r = rows.get(v.colourName) ?? { name: v.colourName, hex: v.colourHex, stock: Object.fromEntries(SIZES.map((s) => [s, 0])) };
-      r.stock[v.size] = v.stock; rows.set(v.colourName, r);
+      const r = map.get(v.colourId) ?? { colourId: v.colourId, stock: zeroStock() };
+      r.stock[v.size] = v.stock; map.set(v.colourId, r);
     });
-    setColours(rows.size ? [...rows.values()] : [blankColour()]);
+    setRows(map.size ? [...map.values()] : [blankRow()]);
   }, [product]);
 
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((p) => ({ ...p, [k]: v }));
-  const setColour = (i: number, patch: Partial<ColourRow>) => setColours((cs) => cs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
+  const setRow = (i: number, patch: Partial<Row>) => setRows((rs) => rs.map((r, j) => (j === i ? { ...r, ...patch } : r)));
   const e = (...keys: string[]) => keys.map((k) => errors[k]?.[0]).find(Boolean);
 
   const submit = (ev: FormEvent) => {
@@ -58,9 +60,11 @@ export default function AdminProductFormPage() {
     if (compareAtCents !== null && compareAtCents <= priceCents) local.compareAt = ['Must be higher than the price.'];
     if (!f.categoryId) local.categoryId = ['Choose a category.'];
     if (!f.images.length) local.images = ['Upload at least one image.'];
-    const variants = colours.filter((c) => c.name.trim()).flatMap((c) =>
-      SIZES.map((size) => ({ size, colourName: c.name.trim(), colourHex: c.hex, stock: Math.max(0, Math.floor(Number(c.stock[size]) || 0)) })));
-    if (!variants.length) local.variants = ['Add at least one colour with a name.'];
+    const chosen = rows.filter((r) => r.colourId);
+    const ids = chosen.map((r) => r.colourId);
+    if (!chosen.length) local.variants = ['Add at least one colour.'];
+    else if (new Set(ids).size !== ids.length) local.variants = ['Each colour can only be used once per product.'];
+    const variants = chosen.flatMap((r) => SIZES.map((size) => ({ colourId: r.colourId, size, stock: Math.max(0, Math.floor(Number(r.stock[size]) || 0)) })));
     setErrors(local);
     if (Object.keys(local).length) return;
 
@@ -104,26 +108,40 @@ export default function AdminProductFormPage() {
       </section>
 
       <section className="border border-line-soft bg-white p-5">
-        <ImageUploader label="Images (first is the main image; drag order with the arrows)" value={f.images} onChange={(u) => set('images', u)} max={10} error={e('images')} />
+        <ImageUploader label="Images (first is the main image; reorder with the arrows)" value={f.images} onChange={(u) => set('images', u)} max={10} error={e('images')} />
       </section>
 
       <section className="space-y-4 border border-line-soft bg-white p-5">
-        <h2 className="font-serif text-xl font-extrabold">Colours and stock</h2>
-        {colours.map((c, i) => (
-          <div key={i} className="space-y-3 border border-line-soft p-4">
-            <div className="flex flex-wrap items-end gap-4">
-              <div className="min-w-[200px] flex-1"><Input label="Colour name" value={c.name} onChange={(ev) => setColour(i, { name: ev.target.value })} /></div>
-              <div className="flex flex-col gap-1.5"><Label htmlFor={`hex-${i}`}>Swatch</Label><input id={`hex-${i}`} type="color" value={c.hex} onChange={(ev) => setColour(i, { hex: ev.target.value })} className="h-11 w-16 cursor-pointer border border-line bg-white p-1" /></div>
-              {colours.length > 1 && <Button type="button" size="sm" variant="secondary" onClick={() => setColours((cs) => cs.filter((_, j) => j !== i))}>Remove</Button>}
+        <div className="flex items-center justify-between">
+          <h2 className="font-serif text-xl font-extrabold">Colours and stock</h2>
+          <Link to="/admin/colours" className="text-sm underline">Manage colours</Link>
+        </div>
+        {rows.map((r, i) => {
+          const picked = colours?.find((c) => c.id === r.colourId);
+          const takenElsewhere = new Set(rows.filter((_, j) => j !== i).map((x) => x.colourId));
+          return (
+            <div key={i} className="space-y-3 border border-line-soft p-4">
+              <div className="flex flex-wrap items-end gap-4">
+                <span aria-hidden className="size-11 shrink-0 border border-line" style={{ background: picked?.hex ?? 'transparent' }} />
+                <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
+                  <Label htmlFor={`col-${i}`}>Colour</Label>
+                  <select id={`col-${i}`} value={r.colourId} onChange={(ev) => setRow(i, { colourId: ev.target.value })} className={`${field} h-11`}>
+                    <option value="">Select a colour…</option>
+                    {colours?.map((c) => <option key={c.id} value={c.id} disabled={takenElsewhere.has(c.id)}>{c.name}</option>)}
+                  </select>
+                </div>
+                {rows.length > 1 && <Button type="button" size="sm" variant="secondary" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>Remove</Button>}
+              </div>
+              <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
+                {SIZES.map((s) => (
+                  <div key={s} className="flex flex-col gap-1"><Label htmlFor={`st-${i}-${s}`} className="text-2xs">{s} stock</Label>
+                    <input id={`st-${i}-${s}`} type="number" min={0} value={r.stock[s]} onChange={(ev) => setRow(i, { stock: { ...r.stock, [s]: Number(ev.target.value) } })} className={`${field} h-10`} /></div>))}
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
-              {SIZES.map((s) => (
-                <div key={s} className="flex flex-col gap-1"><Label htmlFor={`st-${i}-${s}`} className="text-2xs">{s} stock</Label>
-                  <input id={`st-${i}-${s}`} type="number" min={0} value={c.stock[s]} onChange={(ev) => setColour(i, { stock: { ...c.stock, [s]: Number(ev.target.value) } })} className={`${field} h-10`} /></div>))}
-            </div>
-          </div>))}
+          );
+        })}
         {e('variants') && <p role="alert" className="text-2xs text-brand">{e('variants')}</p>}
-        <Button type="button" variant="secondary" size="sm" onClick={() => setColours((cs) => [...cs, blankColour()])}>Add colour</Button>
+        <Button type="button" variant="secondary" size="sm" onClick={() => setRows((rs) => [...rs, blankRow()])}>Add colour</Button>
       </section>
 
       {formError && <p role="alert" className="text-brand">{formError}</p>}

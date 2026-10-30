@@ -28,4 +28,10 @@ export const adminController = {
     update: asyncHandler(async (req, res) => ok(res, await s.updateBanner(req.params.id, req.body))),
     remove: asyncHandler(async (req, res) => { await s.deleteBanner(req.params.id); noContent(res); }),
   },
+    colours: {
+    list: asyncHandler(async (_req, res) => ok(res, await s.listColours())),
+    create: asyncHandler(async (req, res) => created(res, await s.createColour(req.body))),
+    update: asyncHandler(async (req, res) => ok(res, await s.updateColour(req.params.id, req.body))),
+    remove: asyncHandler(async (req, res) => { await s.deleteColour(req.params.id); noContent(res); }),
+  },
 };

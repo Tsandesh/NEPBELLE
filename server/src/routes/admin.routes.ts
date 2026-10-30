@@ -5,7 +5,7 @@ import { rateLimit } from '../middlewares/rateLimiter.js';
 import { upload } from '../middlewares/upload.js';
 import { validate } from '../middlewares/validate.js';
 import { idParam } from '../validators/index.js';
-import { adminProductQuery, bannerInputSchema, categoryInputSchema, productInputSchema } from '../validators/admin.js';
+import { adminProductQuery, bannerInputSchema, categoryInputSchema, colourInputSchema, productInputSchema } from '../validators/admin.js';
 
 const r = Router();
 r.use(requireAuth, requireRole('ADMIN')); // enforced on the server; the client-side guard is only UX
@@ -27,5 +27,10 @@ r.get('/banners', c.banners.list);
 r.post('/banners', validate({ body: bannerInputSchema }), c.banners.create);
 r.put('/banners/:id', validate({ params: idParam, body: bannerInputSchema }), c.banners.update);
 r.delete('/banners/:id', validate({ params: idParam }), c.banners.remove);
+
+r.get('/colours', c.colours.list);
+r.post('/colours', validate({ body: colourInputSchema }), c.colours.create);
+r.put('/colours/:id', validate({ params: idParam, body: colourInputSchema }), c.colours.update);
+r.delete('/colours/:id', validate({ params: idParam }), c.colours.remove);
 
 export default r;

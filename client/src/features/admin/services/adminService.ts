@@ -1,6 +1,6 @@
 import { api, type ApiEnvelope } from '@/services/api';
 import type { Banner, Product } from '@/features/catalog/types';
-import type { AdminCategory, BannerInput, CategoryInput, ProductInput } from '../types';
+import type { AdminCategory,CategoryInput,ColourInput,AdminColour, BannerInput, ProductInput } from '../types';
 
 const d = <T,>(p: Promise<{ data: { data: T } }>) => p.then((r) => r.data.data);
 
@@ -24,6 +24,12 @@ export const adminService = {
     create: (b: CategoryInput) => d<AdminCategory>(api.post('/admin/categories', b)),
     update: (id: string, b: CategoryInput) => d<AdminCategory>(api.put(`/admin/categories/${id}`, b)),
     remove: (id: string) => api.delete(`/admin/categories/${id}`),
+  },
+    colours: {
+    list: () => d<AdminColour[]>(api.get('/admin/colours')),
+    create: (b: ColourInput) => d<AdminColour>(api.post('/admin/colours', b)),
+    update: (id: string, b: ColourInput) => d<AdminColour>(api.put(`/admin/colours/${id}`, b)),
+    remove: (id: string) => api.delete(`/admin/colours/${id}`),
   },
   banners: {
     list: () => d<Banner[]>(api.get('/admin/banners')),

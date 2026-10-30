@@ -3,7 +3,7 @@ import { prisma } from '../config/db.js';
 const include = {
   items: {
     orderBy: { id: 'asc' as const },
-    include: { variant: { include: { product: { select: { id: true, slug: true, name: true, priceCents: true, images: true } } } } },
+    include: { variant: { include: { colour: true, product: { select: { id: true, slug: true, name: true, priceCents: true, images: true } } } } },
   },
 };
 
