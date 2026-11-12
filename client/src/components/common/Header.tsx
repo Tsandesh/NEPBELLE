@@ -6,6 +6,7 @@ import { Logo } from './Logo';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useUiStore } from '@/store/uiStore';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { LucideHeart, LucideSearch, LucideShoppingBag, LucideUser } from 'lucide-react';
 
 // Figma Nav/Categories (9:31993). `bold` = Abhaya ExtraBold + #a72f30 chip.
 const NAV = [
@@ -53,7 +54,7 @@ export const Header = ({ variant = 'solid' }: Props) => {
         </div>
         
         <form onSubmit={submit} role="search" className="hidden h-[38px] w-[394px] items-center gap-2 rounded-[30px] border-[0.5px] border-[rgba(199,199,199,0.6)] bg-[rgba(243,235,226,0.1)] px-3 md:flex">
-          <img src={images.icons.search} alt="" className="size-[18px] transition-opacity duration-200 group-hover:opacity-80" />
+<LucideSearch className="size-4 text-placeholder" />
           <input 
             value={q} 
             onChange={(e) => setQ(e.target.value)} 
@@ -65,14 +66,16 @@ export const Header = ({ variant = 'solid' }: Props) => {
 
         <nav aria-label="Account" className="flex items-center gap-4">
           <Link to="/account/wishlist" aria-label="Wishlist">
-            <img src={images.icons.heart} alt="" className="size-6 transition-opacity duration-200 group-hover:opacity-80" />
+
+            <LucideHeart className="size-6 transition-opacity duration-200 group-hover:opacity-80" />
           </Link>
           <button type="button" aria-label={`Bag, ${cart?.itemCount ?? 0} items`} onClick={() => setBagOpen(true)} className="relative">
-            <img src={images.icons.bag} alt="" className="size-6 transition-opacity duration-200 group-hover:opacity-80" />
+
+            <LucideShoppingBag className="size-6 transition-opacity duration-200 group-hover:opacity-80" />
             {!!cart?.itemCount && <span className="absolute -right-2 -top-2 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] text-ink">{cart.itemCount}</span>}
           </button>
           <Link to={isAuthenticated ? '/account' : '/login'} aria-label="Account">
-            <img src={images.icons.user} alt="" className="size-6 transition-opacity duration-200 group-hover:opacity-80" />
+  <LucideUser className="size-6 transition-opacity duration-200 group-hover:opacity-80" />
           </Link>
         </nav>
       </div>

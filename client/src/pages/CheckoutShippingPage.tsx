@@ -13,6 +13,8 @@ import { checkoutService } from '@/features/checkout/services/checkoutService';
 import { useCheckoutStore } from '@/features/checkout/hooks/useCheckoutStore';
 import { OrderSummaryPanel } from '@/features/checkout/components/OrderSummaryPanel';
 
+
+
 // Figma 03.2 Checkout / Shipping
 export default function CheckoutShippingPage() {
   const nav = useNavigate();
