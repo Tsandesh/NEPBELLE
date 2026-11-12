@@ -5,7 +5,8 @@ import { rateLimit } from '../middlewares/rateLimiter.js';
 import { upload } from '../middlewares/upload.js';
 import { validate } from '../middlewares/validate.js';
 import { idParam } from '../validators/index.js';
-import { adminProductQuery, bannerInputSchema, categoryInputSchema, colourInputSchema, productInputSchema } from '../validators/admin.js';
+import { adminProductQuery, bannerInputSchema, categoryInputSchema, colourInputSchema, productInputSchema , adminOrderQuery, changeStatusSchema, paymentActionSchema, noteSchema} from '../validators/admin.js';
+import { adminOrderController } from '../controllers/adminOrder.controller.js';
 
 const r = Router();
 r.use(requireAuth, requireRole('ADMIN')); // enforced on the server; the client-side guard is only UX
@@ -32,5 +33,14 @@ r.get('/colours', c.colours.list);
 r.post('/colours', validate({ body: colourInputSchema }), c.colours.create);
 r.put('/colours/:id', validate({ params: idParam, body: colourInputSchema }), c.colours.update);
 r.delete('/colours/:id', validate({ params: idParam }), c.colours.remove);
+
+
+r.get('/orders', validate({ query: adminOrderQuery }), adminOrderController.list);
+r.get('/orders/summary', adminOrderController.summary);               // keep above /orders/:id
+r.get('/orders/:id', validate({ params: idParam }), adminOrderController.get);
+r.get('/orders/:id/proof', validate({ params: idParam }), adminOrderController.proof);
+r.post('/orders/:id/status', validate({ params: idParam, body: changeStatusSchema }), adminOrderController.status);
+r.post('/orders/:id/payment', validate({ params: idParam, body: paymentActionSchema }), adminOrderController.payment);
+r.post('/orders/:id/note', validate({ params: idParam, body: noteSchema }), adminOrderController.note);
 
 export default r;

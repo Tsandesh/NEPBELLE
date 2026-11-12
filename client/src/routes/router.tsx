@@ -64,7 +64,10 @@ const routes: RouteObject[] = [
     children: [{
       path: 'admin', element: <AdminLayout />,
       children: [
-        { index: true, element: <Navigate to="products" replace /> },
+        // { index: true, element: <Navigate to="products" replace /> },
+        { index: true, element: page(() => import('@/pages/admin/AdminDashboardPage')) },
+{ path: 'orders', element: page(() => import('@/pages/admin/AdminOrdersPage')) },
+{ path: 'orders/:id', element: page(() => import('@/pages/admin/AdminOrderDetailPage')) },
         { path: 'products', element: page(() => import('@/pages/admin/AdminProductsPage')) },
         { path: 'products/new', element: page(() => import('@/pages/admin/AdminProductFormPage')) },
         { path: 'products/:id', element: page(() => import('@/pages/admin/AdminProductFormPage')) },

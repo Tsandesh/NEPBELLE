@@ -67,3 +67,27 @@ export const adminProductQuery = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
+
+const STATUSES = ['PLACED', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED', 'EXCHANGE_REQUESTED', 'EXCHANGED'] as const;
+const PAYMENT_STATUSES = ['UNPAID', 'PROOF_SUBMITTED', 'PAID', 'REJECTED', 'REFUND_DUE', 'REFUNDED'] as const;
+
+export const adminOrderQuery = z.object({
+  status: z.enum(STATUSES).optional(),
+  paymentStatus: z.enum(PAYMENT_STATUSES).optional(),
+  method: z.enum(['COD', 'PAYID']).optional(),
+  q: z.string().trim().max(100).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export const changeStatusSchema = z.object({
+  status: z.enum(STATUSES),
+  note: z.string().trim().max(500).optional(),
+  courier: z.string().trim().max(60).optional(),
+  trackingNumber: z.string().trim().max(60).optional(),
+  cashCollected: z.boolean().optional(),
+});
+export const paymentActionSchema = z.object({
+  action: z.enum(['VERIFY', 'REJECT', 'MARK_COLLECTED', 'MARK_REFUNDED']),
+  note: z.string().trim().max(500).optional(),
+});
+export const noteSchema = z.object({ note: z.string().trim().min(1).max(500) });

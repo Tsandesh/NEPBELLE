@@ -16,7 +16,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
     if (err.code === 'P2025') return res.status(404).json(errorBody('NOT_FOUND', 'Resource not found'));
   }
   if (err?.type === 'entity.parse.failed') return res.status(400).json(errorBody('BAD_JSON', 'Malformed JSON body'));
-    if (err?.code === 'LIMIT_FILE_SIZE') return res.status(413).json(errorBody('FILE_TOO_LARGE', 'Image must be 5 MB or smaller.'));
+    if (err?.code === 'LIMIT_FILE_SIZE')  if (err?.name === 'MulterError') return res.status(400).json(errorBody('UPLOAD_ERROR', 'The file could not be uploaded.')); return res.status(413).json(errorBody('FILE_TOO_LARGE', 'Image must be 5 MB or smaller.'));
   
   logger.error({ err, path: req.originalUrl }, 'unhandled error');
   res.status(500).json(errorBody('INTERNAL', 'Something went wrong'));

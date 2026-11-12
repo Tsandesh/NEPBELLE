@@ -5,3 +5,4 @@ dist
 client/public/assets/figma
 
 server/uploads
+server/private-uploads

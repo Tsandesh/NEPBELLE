@@ -11,6 +11,8 @@ import { userController } from '../controllers/user.controller.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { authLimiter, rateLimit } from '../middlewares/rateLimiter.js';
 import { validate } from '../middlewares/validate.js';
+import { parseJsonPayload } from '../middlewares/parsePayload.js';
+import { upload } from '../middlewares/upload.js';
 import * as v from '../validators/index.js';
 
 const router = Router();
@@ -39,6 +41,8 @@ router.get('/site/home', siteController.home);
 router.post('/track-order', rateLimit({ prefix: 'track', windowSec: 300, max: 10 }), validate({ body: v.trackOrderSchema }), orderController.track);
 router.use('/admin', adminRoutes);
 
+router.get('/checkout/payment-info', orderController.paymentInfo);   // public, above `secured`
+
 // ---- authenticated
 const secured = Router();
 secured.use(requireAuth);
@@ -53,9 +57,15 @@ secured.get('/wishlist', wishlistController.list);
 secured.put('/wishlist/:id', validate({ params: v.idParam }), wishlistController.add);
 secured.delete('/wishlist/:id', validate({ params: v.idParam }), wishlistController.remove);
 
-secured.post('/orders', rateLimit({ prefix: 'orders', windowSec: 60, max: 10, key: (r) => r.user!.id }), validate({ body: v.placeOrderSchema }), orderController.place);
 secured.get('/orders', orderController.list);
 secured.get('/orders/:id', validate({ params: v.idParam }), orderController.get);
+
+secured.get('/checkout/reference', orderController.reference);
+secured.post('/orders', rateLimit({ prefix: 'orders', windowSec: 3600, max: 10, key: (r) => r.user!.id }),
+  upload.single('proof'), parseJsonPayload, validate({ body: v.placeOrderSchema }), orderController.place);
+secured.post('/orders/:id/payment-proof', rateLimit({ prefix: 'proof', windowSec: 3600, max: 10, key: (r) => r.user!.id }),
+  upload.single('proof'), validate({ params: v.idParam, body: v.resubmitProofSchema }), orderController.resubmitProof);
+secured.post('/orders/:id/exchange-request', validate({ params: v.idParam, body: v.exchangeRequestSchema }), orderController.requestExchange);
 
 secured.patch('/me', validate({ body: v.updateProfileSchema }), userController.update);
 secured.get('/me/addresses', userController.addresses);
