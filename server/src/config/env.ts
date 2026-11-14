@@ -25,6 +25,10 @@ const schema = z.object({
   MAIL_FROM: z.string().default('Nepbelle <no-reply@localhost>'),
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_CHAT_ID: z.string().optional(),
+BREVO_API_KEY: z.string().optional(),
+BREVO_SENDER_EMAIL: z.string().email().optional(),
+BREVO_SMS_SENDER: z.string().optional(),
+  
 });
 
 const parsed = schema.safeParse(process.env);

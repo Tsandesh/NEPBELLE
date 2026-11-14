@@ -191,6 +191,8 @@ enum PaymentStatus {
 enum NotificationChannel {
   EMAIL
   TELEGRAM
+  SMS
+
 }
 
 enum NotificationStatus {

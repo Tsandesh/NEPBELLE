@@ -131,5 +131,22 @@ const render = (c: Copy, o: MailOrder) => ({
     (c.cta ? `<p><a href="${esc(c.cta.url)}" style="display:inline-block;background:#b51f2a;color:#fff;text-decoration:none;padding:12px 20px;font-weight:bold">${esc(c.cta.label)}</a></p>` : '')),
 });
 
+/** Switch a customer SMS on by setting it to true. */
+export const CUSTOMER_SMS: Partial<Record<CustomerEvent, boolean>> = {
+  CUSTOMER_OUT_FOR_DELIVERY: true,
+  CUSTOMER_PAYMENT_REJECTED: true,
+};
+
+// Keep to plain GSM characters (no curly apostrophes or emoji) so messages stay 160 chars/segment, not 70.
+const SMS: Partial<Record<CustomerEvent, (o: MailOrder) => string>> = {
+  CUSTOMER_OUT_FOR_DELIVERY: (o) =>
+    `${env.STORE_NAME}: order ${o.orderNumber} is out for delivery.` +
+    (o.paymentMethod === 'COD' && o.paymentStatus !== 'PAID' ? ` Please have ${money(o.totalCents)} cash ready.` : ''),
+  CUSTOMER_PAYMENT_REJECTED: (o) =>
+    `${env.STORE_NAME}: we could not verify payment for ${o.orderNumber}. Please upload a new screenshot: ${track(o).url}`,
+};
+
+export const renderCustomerSms = (ev: CustomerEvent, o: MailOrder) => SMS[ev]?.(o) ?? null;
+
 export const renderCustomer = (ev: CustomerEvent, o: MailOrder, x: Extra = {}) => render(CUSTOMER[ev](o, x), o);
 export const renderAdmin = (ev: AdminEvent, o: MailOrder, x: Extra = {}) => render(ADMIN[ev](o, x), o);
