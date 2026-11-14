@@ -19,7 +19,7 @@ export default function HomePage() {
     ? home.hero.map((b) => ({ src: assetUrl(b.imageUrl), alt: b.alt }))
     : images.hero;
 
-    console.log('slides', slides);
+
 
   return (
     <div>
