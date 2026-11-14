@@ -20,8 +20,18 @@ async function issueTokens(user: { id: string; role: 'CUSTOMER' | 'ADMIN' }) {
 
 export const authService = {
   async register(input: { email: string; password: string; firstName: string; lastName: string }) {
-    if (await userRepository.findByEmail(input.email)) throw AppError.conflict('An account with this email already exists.');
-    const user = await userRepository.create({ ...input, passwordHash: await hashPassword(input.password) });
+    if (await userRepository.findByEmail(input.email)) {
+      throw AppError.conflict('An account with this email already exists.');
+    }
+    
+    // Extract password so it isn't spread into the repository payload
+    const { password, ...userData } = input;
+    
+    const user = await userRepository.create({
+      ...userData,
+      passwordHash: await hashPassword(password),
+    });
+    
     return { user: publicUser(user), ...(await issueTokens(user)) };
   },
 
