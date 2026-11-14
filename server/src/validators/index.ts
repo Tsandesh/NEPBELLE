@@ -55,11 +55,19 @@ export const updateProfileSchema = z.object({
   phone: z.string().trim().max(30).optional(),
 });
 
+const receipt = z.string().trim().max(60)
+  .regex(/^[A-Za-z0-9 _\/-]*$/, 'Use letters, numbers, spaces and - _ / only.')
+  .optional().transform((v) => v || undefined);
+
 export const placeOrderSchema = z.object({
   shippingAddress: addressSchema.omit({ isDefault: true }),
   saveAddress: z.boolean().optional(),
-  // ASSUMPTION: payment options are placeholders until the Payment screen (9:29380) is mapped.
-  paymentMethod: z.enum(['card', 'cod']),
+  paymentMethod: z.enum(['COD', 'PAYID']),
+  reference: z.string().min(4).max(30).optional(),
+  payidReceiptNumber: receipt,
+  expectedTotalCents: z.number().int().min(0),
 });
+export const resubmitProofSchema = z.object({ payidReceiptNumber: receipt });
+export const exchangeRequestSchema = z.object({ reason: z.string().trim().min(5).max(500) });
 
 export const trackOrderSchema = z.object({ orderNumber: z.string().min(4), email });

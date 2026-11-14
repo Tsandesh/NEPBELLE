@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { images } from '@/assets/images';
+import { FacebookIcon, Instagram, Twitter, Youtube } from 'lucide-react';
 
 const COLS: { title: string; links: [string, string][] }[] = [
   { title: 'Top Categories', links: [['Anarkali Suit Sets', '/shop/anarkali-suit-sets'], ['Kurtas', '/shop/kurtas-tops'], ['Nepbelle Girls', '/shop/girls'], ['Jewellery', '/shop/jewellery'], ['Palazzos', '/shop/bottomwear'], ['Straight Suit Sets', '/shop/straight-suit-sets']] },
@@ -8,7 +9,7 @@ const COLS: { title: string; links: [string, string][] }[] = [
   { title: 'My Profile', links: [['My account', '/account'], ['Track Order', '/track-order'], ['Return & Cancellation', '/help/returns'], ['My cart', '/cart'], ['Wishlist', '/account/wishlist'], ['Order history', '/account/orders']] },
   { title: 'Quick Links', links: [['Shipping Policy', '/help/shipping'], ['Privacy Policy', '/help/privacy'], ['Careers', '/careers'], ['Terms of use', '/help/terms']] },
 ];
-const SOCIAL = [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['twitter', 'Twitter'], ['youtube', 'YouTube'], ['pinterest', 'Pinterest']] as const;
+const SOCIAL = [['facebook', <FacebookIcon  />], ['instagram', <Instagram  />], ['twitter', <Twitter  />], ['youtube', <Youtube />]] as const;
 
 export const Footer = () => (
   <footer className="bg-brand-hover px-4 pb-1 pt-10 text-white md:px-11">
@@ -23,7 +24,11 @@ export const Footer = () => (
       </div>
       <div className="flex flex-wrap items-center justify-between gap-4 py-6">
         <div className="flex items-center gap-4"><span className="text-base">Follow us</span>
-          {SOCIAL.map(([k, label]) => <a key={k} href="#" aria-label={label} className="flex size-6 items-center justify-center rounded-[5px] bg-white/10"><img src={images.icons[k]} alt="" className="size-3.5" /></a>)}
+          {SOCIAL.map(([name, icon]) => (
+            <a key={name} href="#" aria-label={name} className="flex size-6 items-center justify-center rounded-[5px] bg-white/10">
+              {icon}
+            </a>
+          ))}
         </div>
         <div className="flex items-center gap-2"><img src={images.icons.shield} alt="" className="size-[18px]" /><span className="font-serif text-sm font-extrabold">100% Secure Payments</span></div>
       </div>
